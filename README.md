@@ -34,7 +34,7 @@ MetaGPT运行用vscode中的Python 3.5 以上语言编译器，小游戏用Java 
 
 孙镜涵（GitHub username：sjh6666）
 
-徐晟昌（GitHub username：yhdd11）
+徐晟昌（GitHub username：yuhuangdadi11）
 
 成小康（GitHub username：cxk-00000）
 
