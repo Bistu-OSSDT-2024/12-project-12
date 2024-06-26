@@ -28,8 +28,34 @@ Python 3.5 Pygame环境
 
 # 运行
 
-java
+MetaGPT运行用vscode中的Python 3.5 以上语言编译器，小游戏用Java 1.8 JDK以上运行。
 
-#
+# 开发人员
+
+孙镜涵（GitHub username：sjh6666）
+
+徐晟昌（GitHub username：yhdd11）
+
+成小康（GitHub username：cxk-00000）
+
+杨润宝（GitHub username：Tintieeeee）
+
+# 管理团队
+
+啊对对对 组  
+
+# 特别鸣谢
+
+1.导师：孙博辰
+
+啊对对对组全体成员
+
+# licence
+
+本项目基于 MIT许可证 发布
+
+
+
+
 
 
