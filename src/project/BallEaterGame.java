@@ -8,6 +8,7 @@ import java.awt.geom.AffineTransform;
 import java.util.ArrayList;
 import java.util.Random;
  
+
 public class BallEaterGame extends JPanel implements ActionListener, KeyListener {
 final static int WIDTH = 1600;
 final static int HEIGHT = 1200;
@@ -18,9 +19,15 @@ final static int HEIGHT = 1200;
    boolean gameOver;
    JFrame frame;
    private int enemyCount; 
+   private int score;
+   private String gameMode;
+  
+   
  
-   public BallEaterGame(JFrame frame) {
+   public BallEaterGame(JFrame frame,String gameMode) {
+	   score = 0;
        this.frame = frame;
+       this.gameMode = gameMode;
        setFocusable(true);
        keys = new boolean[4];
        player = new PlayerBall(WIDTH / 2, HEIGHT / 2);
@@ -36,8 +43,21 @@ final static int HEIGHT = 1200;
        timer.start();
  
        addKeyListener(this);
-       enemyCount = enemies.size(); 
+       enemyCount = enemies.size();
+       
    }
+   private void drawScore(Graphics g) {
+	   Graphics2D g2d = (Graphics2D) g;
+	   g2d.setFont(new Font("Helvetica", Font.BOLD, 24)); // 设置字体
+	   g2d.setColor(Color.BLACK);
+	   String scoreText = "北信科球吃掉了: " + score+"个球";
+	   // 绘制得分在屏幕的左上角
+	   g2d.drawString(scoreText, 10, 30); 
+	}
+   private void incrementScore(int points) {
+	   score += points;
+	   repaint(); 
+	}
  
    public void actionPerformed(ActionEvent e) {
        if (gameOver) return;
@@ -71,6 +91,20 @@ final static int HEIGHT = 1200;
  
        repaint();
    }
+  
+ 
+   @Override
+   public void paintComponent(Graphics g) {
+       super.paintComponent(g);
+       if (!gameOver) {
+           player.draw(g);
+           for (EnemyBall enemy : enemies) {
+               enemy.draw(g);
+           }
+           drawScore(g); // 绘制得分
+       }
+   }
+   
  
    public void paintComponent(Graphics g) {
        super.paintComponent(g);
@@ -123,6 +157,7 @@ final static int HEIGHT = 1200;
    private void resetGame() {
     player = new PlayerBall(WIDTH / 2, HEIGHT / 2);
     enemies.clear();
+    score = 0;
     for (int i = 0; i < 50; i++) {
     	 int enemySize = new Random().nextInt(15) + 5; // 红球大小在5到20之间
     	 enemies.add(new EnemyBall(new Random().nextInt(WIDTH), new Random().nextInt(HEIGHT), enemySize));
@@ -159,7 +194,11 @@ final static int HEIGHT = 1200;
             } else {
                 player.eat(enemy1);
                 toRemove.add(enemy1); 
+                if (gameMode.equals("无尽模式")) {
+                    createNewEnemyBall(); // 在无尽模式中创建新的红球
+                }
                 enemyCount--; // 减少敌人数量
+                incrementScore(1); 
                 if (enemyCount <= 0) {
                     gameOver = true; // 红球清零，玩家胜利
                     gameWon(); // 调用游戏胜利的处理方法
@@ -170,6 +209,14 @@ final static int HEIGHT = 1200;
     }
     enemies.removeAll(toRemove);
  }
+   private void createNewEnemyBall() {
+       // 确保新生成的红球大小小于蓝球的大小
+       int maxSize = 40; // 假设红球的最大大小比蓝球小 5
+       int newSize = new Random().nextInt(maxSize) + 5; // 新红球的大小在 5 到 maxSize 之间
+       int x = new Random().nextInt(WIDTH);
+       int y = new Random().nextInt(HEIGHT);
+       enemies.add(new EnemyBall(x, y, newSize));
+   }
  
   private void gameWon() {
    // 停止游戏循环
@@ -190,13 +237,18 @@ final static int HEIGHT = 1200;
      }
    
     public static void main(String[] args) {
-        JFrame frame = new JFrame("Ball Eater Game");
-        frame.setSize(new Dimension(WIDTH, HEIGHT));
-        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        BallEaterGame game = new BallEaterGame(frame);
-        frame.add(game);
-        frame.setVisible(true);
-    }
+    	   JFrame frame = new JFrame("Ball Eater Game");
+    	   frame.setSize(new Dimension(WIDTH, HEIGHT));
+    	   frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+    	   String gameMode = GameModeChooser.chooseMode(frame);
+    	   if (gameMode != null) {
+    	       BallEaterGame game = new BallEaterGame(frame, gameMode);
+    	       frame.add(game);
+    	       frame.setVisible(true);
+    	   } else {
+    	       System.exit(0); // 如果用户取消，则退出游戏
+    	   }
+    	}
   }
    
   class PlayerBall {
@@ -211,6 +263,7 @@ final static int HEIGHT = 1200;
     private Image loadImage(String path) {
         ImageIcon icon = new ImageIcon(path);
         return icon.getImage();
+        
     }
   
     public void draw(Graphics g) {
@@ -293,3 +346,23 @@ final static int HEIGHT = 1200;
         g.fillOval(x - size / 2, y - size / 2, size, size);
     }
   }
+  class GameModeChooser {
+	   public static String chooseMode(JFrame frame) {
+	       Object[] options = {"有限模式", "无尽模式"};
+	       int response = JOptionPane.showOptionDialog(frame,
+	               "请选择游戏模式",
+	               "游戏模式选择",
+	               JOptionPane.DEFAULT_OPTION,
+	               JOptionPane.PLAIN_MESSAGE,
+	               null,
+	               options,
+	               options[0]);
+	       if (response == 0) {
+	           return "有限模式";
+	       } else if (response == 1) {
+	           return "无尽模式";
+	       } else {
+	           return null; // 如果用户取消，则返回 null
+	       }
+	   }
+	}
